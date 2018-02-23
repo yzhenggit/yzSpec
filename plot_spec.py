@@ -83,10 +83,111 @@ def build_axes(line_number, pltrange=[-400, 400]):
 
     return axes, fig
 
+def plot_HI21cm(ax, hifile, vmin, vmax):
+    hitb = fits.open(hifile)
+    hivel, hispec = hitb[1].data.field('VLSR'), hitb[1].data.field('FLUX')
+    ind = np.where(np.all([hivel>=vmin, hivel<=vmax], axis=0) == True)
+    xx, yy = np.repeat(hivel[ind], 2)[1:], np.repeat(hispec[ind], 2)[:-1]
+    ax.plot(xx, yy, color=c_blk, lw=0.8)
+    tmax, tmin = np.nanmax(hispec[ind]), np.nanmin(hispec[ind])
+    ax.hlines(0, vmin, vmax, linestyle=':')
+    ax.vlines(vline, tmin, tmax*1.4, linestyle='--')
+    ax.set_xlim(vmin, vmax)
+    ax.set_ylim(tmin, tmax*1.4)
+    ax.text(vmin+0.05*np.fabs(vmax-vmin), tmax, 'HI-21cm', color=c_red)
+    ax.set_ylabel('Tb (K)')
+    hitb.close()
+    return 'HI is good'
+
+def plot_uvline(ax, uvfile, target_info, vmin, vmax, vline=0):
+
+    iontb = fits.open(uvfile)
+    from quicktools.vhelio2vlsr import vhelio2vlsr_Westmeier
+    vhel2vlsr = vhelio2vlsr_Westmeier(0, target_info['l'], target_info['b'], doradec=False)
+    ivel = iontb[1].data.field('VELOCITY')+vhel2vlsr
+    iflux = iontb[1].data.field('NORMFLUX')
+    isig = iontb[1].data.field('NORMERR')
+    
+    ind = np.where(np.all([ivel>=vmin, ivel<=vmax], axis=0) == True)[0]
+    if len(ivel[ind])<=3:
+        ax.set_xlim(vmin, vmax)
+        ax.set_ylim(0., 1.8)
+        ax.text(vmin+0.05*np.fabs(vmax-vmin), 1.4, uvfile.split('_')[-1][:-4], color=c_red)
+    else:
+        x, y, z = ivel[ind], iflux[ind], isig[ind]
+        ax.plot(x, y, color=c_blk, lw=0.8)
+        ax.plot(x, z, color=c_blue, lw=0.8)
+        ax.hlines(1., vmin, vmax, linestyle=':')
+        ax.vlines(vline, 0., 1.8, linestyle='--')
+        ax.set_xlim(vmin, vmax)
+        ax.set_ylim(0, 1.8)
+        ax.text(vmin+0.05*np.fabs(vmax-vmin), 1.3, '%s        f%.4f'%(iontb[0].header['LINE'],
+                                                                      iontb[0].header['FVAL']),
+                                                                      color=c_red, fontsize=10)
+    iontb.close() 
+    return 'UV line is good'
+   
+def stack_allline(target_info, filedir, pltrange=[-400, 400], vline=0, 
+                  savedir='./', plt_HI=False):
+    '''
+    Find all the available sliced lines in filedir, and stack them together. 
+    Deal with HI21cm lines separately.
+    '''
+  
+    # first check the directory to find the HI and UV lines  
+    hifiles = []
+    for jfile in os.listdir(filedir+'/linedata_21cm'):
+        if jfile.split('_')[0] == 'hlsp':
+            hifiles.append(filedi+'/linedata_21cm/'+jfile)
+
+    uvfiles = []
+    for ifile in os.listdir(filedir+'/linedata_uv'):
+        if ifile.split('_')[0] == 'hlsp':
+            uvfiles.append(filedir+'/linedata_uv/'+ifile)
+
+     
+    # build axies for the stack spectra
+    axnumber = len(uvfiles)+1  # the 1 is for HI 21cm lines 
+    axes, fig = build_axes(axnumber)
+    vmin, vmax = pltrange[0], pltrange[1]
+   
+    ## axes[0] is always for HI21cm, no matter whether there is data or not
+    if plt_HI == True:
+        print('Plottig HI 21cm lines')
+        this_hifile = filedir+'/'+hifiles[0] # this line might need to be changed 
+        plot_HI21cm(axes[0], this_hifile, vmin, vmax)
+    else:
+        axes[0].set_xlim(vmin, vmax)
+        axes[0].set_ylim(-1, 1)
+    
+    ## now work on the UV lines  
+    for iuv, ifile in enumerate(uvfiles):
+        plot_uvline(axes[iuv+1], ifile, target_info, vmin, vmax, vline=vline)
+
+    ## now overall layout
+    fig.text(0.05, 0.96, '%s'%(target_info['NAME']), fontsize=12, horizontalalignment='left')
+    fig.text(0.05, 0.94, '(RA%.2f, DEC%.2f, gl%.2f, gb%.2f)'%(target_info['RA'], target_info['DEC'],
+                                                              target_info['l'], target_info['b']),
+                                                              fontsize=8)
+    fig.text(0.05, 0.92, '(SN%d, z%.3f)'%(target_info['S/N'], target_info['z']), fontsize=8)
+    fig.text(0.1, 0.05, 'VLSR (km/s)  (NOTE: vel in helio in fits file)')
+    
+    if target_info['Grating'] == 'FUVM': grating = 'g130m-g160m'
+    else: grating = target_info['Grating']
+    figname = '%s/hlsp_cos-gal_hst_cos_%s_%s_v1_stackspec.pdf'%(filedir,
+                                                                target_info['NAME'].lower(),
+                                                                grating.lower())
+    #figname = '%s/%s_stackspec.pdf'%(savedir, target_info['NAME'])  # for the final product
+    fig.savefig(figname)
+    plt.close()
+    return "stacking is good."
+
+
 def stack_spec(target_info, filedir, lines='All', pltrange=[-400, 400], 
                vline=0., nbin=1, savedir='./'):
     '''
     Find all the available sliced lines in filedir, and stack them together. 
+    (this is an old func, use stack_allline instead)
     '''
 
     linefiles = os.listdir(filedir)
