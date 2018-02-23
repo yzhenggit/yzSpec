@@ -7,6 +7,11 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+## These are the color values that would be used everywhere
+c_blue = plt.cm.Blues(0.7)
+c_red = plt.cm.Reds(0.7)
+c_blk = plt.cm.Greys(0.9)
+
 def build_axes(line_number, pltrange=[-400, 400]):
     '''
     Setup the figure axes for the stack plotting. If line_number>10, use the bigger canvas.
@@ -49,8 +54,10 @@ def build_axes(line_number, pltrange=[-400, 400]):
         fig = plt.figure(figsize=(10, 8))
         axwd, axht = 0.17, 0.09
     else:   # for only a small set of lines
-        axpos11 = np.asarray([[0.2, 0.780], [0.2, 0.705], [0.2, 0.630], [0.2, 0.555], [0.2, 0.480], [0.2, 0.405],
-                              [0.2, 0.330], [0.2, 0.255], [0.2, 0.180], [0.2, 0.105], [0.2, 0.030]])
+        axpos11 = np.asarray([[0.2, 0.780], [0.2, 0.705], [0.2, 0.630], 
+                              [0.2, 0.555], [0.2, 0.480], [0.2, 0.405],
+                              [0.2, 0.330], [0.2, 0.255], [0.2, 0.180], 
+                              [0.2, 0.105], [0.2, 0.030]])
         do_xlabel = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
         do_ylabel = [1]*11
         fig = plt.figure(figsize=(2.5, 9))
@@ -76,7 +83,8 @@ def build_axes(line_number, pltrange=[-400, 400]):
 
     return axes, fig
 
-def stack_spec(target_info, filedir, lines='All', pltrange=[-400, 400], vline=0., nbin=1, savedir='./'):
+def stack_spec(target_info, filedir, lines='All', pltrange=[-400, 400], 
+               vline=0., nbin=1, savedir='./'):
     '''
     Find all the available sliced lines in filedir, and stack them together. 
     '''
@@ -117,13 +125,13 @@ def stack_spec(target_info, filedir, lines='All', pltrange=[-400, 400], vline=0.
         ind = np.where(np.all([hivel>=vmin, hivel<=vmax], axis=0) == True)
         iax = axes[0]
         xx, yy = np.repeat(hivel[ind], 2)[1:], np.repeat(hispec[ind], 2)[:-1]
-        iax.plot(xx, yy, color='k', lw=0.8)
+        iax.plot(xx, yy, color=c_blk, lw=0.8)
         tmax, tmin = np.nanmax(hispec[ind]), np.nanmin(hispec[ind])
         iax.hlines(0, vmin, vmax, linestyle=':')
         iax.vlines(vline, tmin, tmax*1.4, linestyle='--')
         iax.set_xlim(vmin, vmax)
         iax.set_ylim(tmin, tmax*1.4)
-        iax.text(vmin+0.05*np.fabs(vmax-vmin), tmax, 'HI-21cm', color='r')
+        iax.text(vmin+0.05*np.fabs(vmax-vmin), tmax, 'HI-21cm', color=c_red)
         fig.text(0.05, 0.9, '(%s)'%(ifile), fontsize=8)
         hitb.close()
     else:
@@ -148,7 +156,7 @@ def stack_spec(target_info, filedir, lines='All', pltrange=[-400, 400], vline=0.
         if len(ivel[ind])<=3:
             iax.set_xlim(vmin, vmax)
             iax.set_ylim(0., 1.8)
-            iax.text(vmin+0.05*np.fabs(vmax-vmin), 1.4, ifile.split('_')[-1][:-4], color='r')
+            iax.text(vmin+0.05*np.fabs(vmax-vmin), 1.4, ifile.split('_')[-1][:-4], color=c_red)
         else:
             if nbin>1:
                 x, y = bin_spec(ivel[ind], iflux[ind], nbin)
@@ -158,8 +166,8 @@ def stack_spec(target_info, filedir, lines='All', pltrange=[-400, 400], vline=0.
 
             xx, yy = np.repeat(x, 2)[1:], np.repeat(y, 2)[:-1]
             zz = np.repeat(z, 2)[:-1]
-            iax.plot(xx, yy, color='k', lw=0.8)
-            iax.plot(xx, zz, color='b', lw=0.8)
+            iax.plot(xx, yy, color=c_blk, lw=0.8)
+            iax.plot(xx, zz, color=c_blue, lw=0.8)
             iax.hlines(1., vmin, vmax, linestyle=':')
             iax.vlines(vline, 0., 1.8, linestyle='--')
             iax.set_xlim(vmin, vmax)
@@ -168,7 +176,7 @@ def stack_spec(target_info, filedir, lines='All', pltrange=[-400, 400], vline=0.
             thisline = read_linelibrary(lines=ifile.split('_')[-1][:-4], doprint=False)
             iax.text(vmin+0.05*np.fabs(vmax-vmin), 1.3, '%s        f%.4f'%(iontb[0].header['LINE'],
                                                                            iontb[0].header['FVAL']),
-                                                                           color='r', fontsize=10)
+                                                                           color=c_red, fontsize=10)
             iontb.close()
 
     fig.text(0.05, 0.96, '%s'%(target_info['NAME']), fontsize=12, horizontalalignment='left')
@@ -182,7 +190,7 @@ def stack_spec(target_info, filedir, lines='All', pltrange=[-400, 400], vline=0.
     plt.close()
     return 
 
-def plot_OneLine(target_info, linefile, pltrange=[-400, 400], nbin=1, filedir='.', velwidth=1000):
+def plot_OneLine(target_info, linefile, pltrange=[-400, 400], filedir='.', velwidth=1000):
     '''
     Plot and (evaluate) the continuum fits.
     '''
@@ -212,21 +220,21 @@ def plot_OneLine(target_info, linefile, pltrange=[-400, 400], nbin=1, filedir='.
 
     fig.text(0.94, 0.95, '%s'%(target_info['NAME']), fontsize=12, horizontalalignment='right')
     fig.text(0.94, 0.905, '%s  fval=%.4f'%(line, fval), fontsize=12, 
-             horizontalalignment='right', color='r', fontweight='bold')
+             horizontalalignment='right', color=c_red, fontweight='bold')
 
     # ax1, original spectra, with continuum on top
-    ax1.plot(vel, flux, color='k', lw=0.7)
-    ax1.plot(vel, sig, color='b', lw=0.7)
-    ax1.plot(vel, conti, color='r', lw=1.2)
+    ax1.plot(vel, flux, color=c_blk, lw=0.7)
+    ax1.plot(vel, sig, color=c_blue, lw=0.7)
+    ax1.plot(vel, conti, color=c_red, lw=1.2)
 
     ax1.set_xlim([-velwidth, velwidth])
     ax1.minorticks_on()
     ax1.set_xticklabels([])
-    ax1.set_ylabel('Flux (erg/s/cm2/A)')
+    ax1.set_ylabel('Flux (erg/s/cm2/Ang)')
 
     ax2.hlines(1.0, -velwidth, velwidth, linestyle=':')
-    ax2.plot(vel, nflux, color='k', lw=0.7)
-    ax2.plot(vel, nsig, color='b', lw=0.7)
+    ax2.plot(vel, nflux, color=c_blk, lw=0.7)
+    ax2.plot(vel, nsig, color=c_blue, lw=0.7)
     ax2.set_xlim([-velwidth, velwidth])
     ax2.set_ylim(0., 1.8)
     ax2.vlines(0, 0, 1.8, linestyle='--')
@@ -237,8 +245,8 @@ def plot_OneLine(target_info, linefile, pltrange=[-400, 400], nbin=1, filedir='.
 
     ##### ax3, zoom in normalized spec
     ax3.hlines(1.0, pltrange[0], pltrange[1], linestyle=':')
-    ax3.plot(vel, nflux, color='k', lw=0.7)
-    ax3.plot(vel, nsig, color='b', lw=0.7)
+    ax3.plot(vel, nflux, color=c_blk, lw=0.7)
+    ax3.plot(vel, nsig, color=c_blue, lw=0.7)
     ax3.set_xlim(pltrange)
     ax3.set_ylim(0, 1.8)
     ax3.vlines(0, 0, 1.8, linestyle='--')
@@ -247,9 +255,9 @@ def plot_OneLine(target_info, linefile, pltrange=[-400, 400], nbin=1, filedir='.
     ax3.set_xticks(np.mgrid[minr:maxr:200][1:])
     ax3.set_yticks(np.mgrid[0:2.:0.5])
     ax3.minorticks_on()
-    ax3.set_xlabel('Velocity (km/s)')
+    ax3.set_xlabel('VLSR (km/s)  (Note: vel in helio in fits file)')
     ax3.set_ylabel('Norm. Flux')
 
-    figname = '%s/%s_%s.pdf'%(filedir, target_info['NAME'], line.replace(' ', ''))
+    figname = '%s/%s.pdf'%(filedir, linefile.split('/')[-1][:-8])
     fig.savefig(figname)
     plt.close()
