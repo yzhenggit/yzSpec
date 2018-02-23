@@ -57,11 +57,11 @@ def find_targetinfo(target):
         else: redshift = float(objs['z'][ind][0])
         target_info = {'NAME': target, 
                        'z': redshift, 
-                       'RA': objs['RA'][ind][0], 
-                       'DEC': objs['DEC'][ind][0], 
-                       'l': objs['l'][ind][0],  
-                       'b': objs['b'][ind][0], 
-                       'S/N': objs['S/N'][ind][0],
+                       'RA': float(objs['RA'][ind][0]), 
+                       'DEC': float(objs['DEC'][ind][0]), 
+                       'l': float(objs['l'][ind][0]),  
+                       'b': float(objs['b'][ind][0]), 
+                       'S/N': float(objs['S/N'][ind][0]),
                        'Grating': gtag, 
                        'DATAFILE': filename
                       }
