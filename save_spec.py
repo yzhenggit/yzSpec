@@ -217,11 +217,9 @@ def save_linespec(lt_spec, target_info, category, has_continuum=False, filedir='
                                                                    grating.lower(), 
                                                                    line_info['hlsp-name'].lower())
     thdulist.writeto(filename, clobber=True)
-
     return filename
 
-    
- 
+
 def save_spec(lt_spec, target_info, has_continuum=False, line='none', filedir='', do_redshift=False, velwidth=1000):
     '''
     Save the spectra into fits. Could save the whole spectra, or a segment near a specific line. 
