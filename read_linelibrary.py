@@ -2,7 +2,15 @@ import astropy.io.fits as fits
 import sys, re
 import numpy as np
 
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 def import_lines():
+    '''
+    Load the interested lines.
+    '''
+
     defaultlines = ['PII 1152', 'PII 1301',  
                     'FeII 1142', 'FeII 1143', 'FeII 1144', 'FeII 1608',
                     'CII 1334', 'CII* 1335', 'CIV 1548', 'CIV 1550', 
@@ -16,6 +24,9 @@ def import_lines():
     return defaultlines
 
 def read_linelibrary(lines='All', doprint=True):
+    '''
+    For the input lines, find the wavelength and fval. 
+    '''
 
     # find the path, read in the line library 
     import sys
@@ -40,7 +51,7 @@ def read_linelibrary(lines='All', doprint=True):
             eles = re.split('(\d+)', lines[il].replace(' ', ''))
             newline = '%s %s'%(eles[0], eles[1])
             if newline in defaultlines: dolines.append(newline)
-            else: print('--> '+lines[il]+' not in the right format. skip.')
+            else: logger.info(lines[il]+' not in the right format. skip.')
 
     # read line wavelength and oscillator strength
     line_lambda = []
@@ -58,6 +69,7 @@ def read_linelibrary(lines='All', doprint=True):
                 
                 break
 
-    if doprint == True: print("Found these in our library: ",liblines)
-    return liblines, line_lambda, line_fval
+    if doprint == True: logger.info("Found these in our library: ",liblines)
+    line_ref = 'Morton (2003)'
+    return liblines, line_lambda, line_fval, line_ref
 
