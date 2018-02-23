@@ -2,6 +2,9 @@ from PyPDF2 import PdfFileWriter, PdfFileReader
 import os
 
 def combine_figpdfs(figdir, outpdfname='new.pdf', outputdir='.'):
+    '''
+    Combine all the pdf in the figdir into one pdf file. 
+    '''
 
     # look for the pdfiles in the figdir
     pdffiles=os.listdir(figdir)
