@@ -144,7 +144,7 @@ def stack_allline(target_info, filedir, pltrange=[-400, 400], vline=0,
     for ifile in os.listdir(filedir+'/linedata_uv'):
         if ifile.split('_')[0] == 'hlsp':
             uvfiles.append(filedir+'/linedata_uv/'+ifile)
-
+    uvfiles = sorted(uvfiles)[::-1]
      
     # build axies for the stack spectra
     axnumber = len(uvfiles)+1  # the 1 is for HI 21cm lines 
