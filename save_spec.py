@@ -71,26 +71,47 @@ def create_prime_header(target_info, category):
     todate = str(datetime.datetime.now())
     hdulist = fits.open(target_info['DATAFILE'])
 
-    expo_info = coadd_exposure_info(target_info['NAME'], category)
+    ## method 1: get the exposure info by direclty reading the co-added spectra
+    ##           but this one takes almost forever if we run it for every single target
+    # expo_info = coadd_exposure_info(target_info['NAME'], category)
+
+    ## method 2; pre-processed exposure for all targets, and save the info somewhere
+    ##           now we just need to read that table in 
+    import os
+    expo_str = np.load(os.path.expanduser('~')+'/Dropbox/HSLA_Feb16/code/tables/exposure_structures.npy').item()
+    expo_info = expo_str[target_info['NAME']] 
+
     # Add the following Keywords to the Primary Header
     # according to S. Flemming's instruction
     prihead = hdulist[0].header
     prihead['TELESCOP'] = 'HST'
     prihead['INSTRUME'] = 'COS'
-    prihead['TARGNAME'] = (target_info['NAME'], 'Target name; HSLA (Peeples+2017)')
-    prihead['RA_TARG']  = (round(target_info['RA'], 4), 'Right Ascension (deg) (J2000); HSLA (Peeples+2017)')
-    prihead['DEC_TARG'] = (round(target_info['DEC'], 4), 'Declination (deg) (J2000); HSLA (Peeples+2017)') 
-    prihead['DATE-OBS'] = (expo_info[0], 'UT date of start of the first observation of the coadd (yyyy-mm-dd)')
-    prihead['TIME-OBS'] =  (expo_info[1], 'UT time of start of the first observation of the coadd (hh:mm:ss)')
-    prihead['EXPSTART'] = (expo_info[2], 'Start time of the first exposure of the coadd, in MJD')
-    prihead['EXPEND'] = (expo_info[3], 'End time of the last exposure of the coadd, in MJD')
-    prihead['EXPTIME1'] = (expo_info[4], 'Total effective exposure time of coadd in GRATING1 in seconds')
-    prihead['EXPTIME2'] = (expo_info[5], 'Total effective exposure time of coadd in GRATING2 in seconds')
-    prihead['GRATING1'] = 'G130M' # the first filter/grism if combines more than one']
-    prihead['GRATING2'] = 'G160M' # the second filter/grism....etc.']
+    prihead['TARGNAME'] = (target_info['NAME'], 'Target name; HSLA(Peeples+2017)')
+    prihead['RA_TARG']  = (round(target_info['RA'], 4), 'Right Ascension (deg; J2000); HSLA(Peeples+2017)')
+    prihead['DEC_TARG'] = (round(target_info['DEC'], 4), 'Declination (deg; J2000); HSLA(Peeples+2017)') 
+    prihead['DATE-OBS'] = (expo_info[0], 'UT date of start of the 1st obs (yyyy-mm-dd)')
+    prihead['TIME-OBS'] =  (expo_info[1], 'UT time of start of the 1st obs (hh:mm:ss)')
+    prihead['EXPSTART'] = (expo_info[2], 'Start time of the first exposure, MJD')
+    prihead['EXPEND'] = (expo_info[3], 'End time of the last exposure, MJD')
+
+    if expo_info[4] != 0 and expo_info[5] != 0: 
+        prihead['EXPTIME'] = (expo_info[4]+expo_info[5], 'Total effective exposure time in sec')
+        prihead['FILTER'] = 'MULTI'  # if spectrum combines more than one grism, or the filter/grism if only one
+        prihead['EXPTIME1'] = (expo_info[4], 'Total Effective exposure time in FILTER1 in sec')
+        prihead['EXPTIME2'] = (expo_info[5], 'Total effective exposure time in FILTER2 in sec')
+        prihead['FILTER1'] = 'G130M' # the first filter/grism if combines more than one']
+        prihead['FILTER2'] = 'G160M' # the second filter/grism....etc.']
+    else:
+        if expo_info[4] != 0 and expo_info[5] == 0: # has G130M but not G160M 
+            prihead['EXPTIME'] = (expo_info[4], 'Total effective exposure time in sec')
+            prihead['FILTER'] = 'G130M' # the first filter/grism if combines more than one']
+        elif expo_info[4] == 0 and expo_info[5] !=0:  # has G160M but not G130M 
+            prihead['EXPTIME'] = (expo_info[5], 'Total effective exposure time in sec')
+            prihead['FILTER'] = 'G160M' # the first filter/grism if combines more than one']
+
     prihead['HLSPNAME'] = ('COS-GAL', 'the COS Quasar Database for Galactic Absorption Lines')
     prihead['HLSPLEAD'] = 'Yong Zheng'
-    prihead['HISTORY'] = 'wave/flux/sig are adopted from HSLA (Peeples)+2017 without modification. YZ added continuum on %s'%(todate)
+    prihead['HISTORY'] = 'Continuum normalization for the QSO spectra coadded by HLSA(Peeples+2017). Processed on %s'%(todate)
     
     del prihead['CREATOR'] 
     del prihead['HIERARCH TIMESTAMP']
@@ -127,7 +148,7 @@ def save_fullspec(lt_spec, target_info, category, has_continuum=False, filedir='
     tbhdu.header['TUNIT2'] = 'ergs/s/cm^2/Ang' # for the flux array or whatever unit that column is, etc. for the other columns.
     tbhdu.header['TUNIT3'] = 'ergs/s/cm^2/Ang' # for the error array
     tbhdu.header['TUNIT4'] = 'ergs/s/cm^2/Ang' # for the continuum array
-    tbhdu.header['WAVEUNIT'] = '' # "air" or "vacuum" depending on what the wavelengths are measured in
+    # tbhdu.header['WAVEUNIT'] = '' # "air" or "vacuum" depending on what the wavelengths are measured in
     
     ## now put everything together, and write to fits
     thdulist = fits.HDUList([prihdu, tbhdu])
@@ -159,10 +180,9 @@ def save_linespec(lt_spec, target_info, category, has_continuum=False, filedir='
 
     # save the data to fits, first create Primary header 
     prihead = create_prime_header(target_info, category)
-    prihead['LINE'] = line.replace(' ', '')
-    prihead['LAMBDA'] = line_info['wave']
-    prihead['FVAL'] = line_info['fval']
-    prihead['LINEREF'] = line_info['Ref']
+    prihead['LINE'] = line
+    prihead['LAMBDA'] = (line_info['wave'], 'Vacuum wavelength in Angstrom; Morton (2003)')
+    prihead['FVAL'] = (line_info['fval'], 'Oscillator Strength; Morton (2003)')
     prihdu = fits.PrimaryHDU(header=prihead)
 
     # then, create the data array 
@@ -203,7 +223,7 @@ def save_linespec(lt_spec, target_info, category, has_continuum=False, filedir='
     tbhdu.header['TUNIT3'] = 'ergs/s/cm^2/Ang' # for the error array
     tbhdu.header['TUNIT4'] = 'ergs/s/cm^2/Ang' # for the continuum array
     tbhdu.header['TUNIT7'] = 'ergs/s/cm^2/Ang' # for the continuum array
-    tbhdu.header['WAVEUNIT'] = '' # "air" or "vacuum" depending on what the wavelengths are measured in
+    # tbhdu.header['WAVEUNIT'] = '' # "air" or "vacuum" depending on what the wavelengths are measured in
     tbhdu.header['VELFRAME'] = 'Heliocentric'  # still need to be double checked. as of 02/22/2018, yz
 
     ## now put everything together, and write to fits
@@ -307,11 +327,10 @@ def save_spec(lt_spec, target_info, has_continuum=False, line='none', filedir=''
             col_arrs.append(col_velo)
 
             # filename = '%s/%s_%s.fits.gz'%(filedir, target_info['NAME'], line.replace(' ', ''))
-            import re
             filename = '%s/hlsp_cos-gal_hst_cos_%s_%s_v1_%s-spec.fits.gz'%(filedir, 
-                                                                              target_info['NAME'].lower(), 
-                                                                              grating.lower(), 
-                                                                              line_info[4]['hlsp-name-string'].lower())
+                                                                           target_info['NAME'].lower(), 
+                                                                           grating.lower(), 
+                                                                           line_info[4]['hlsp-name-string'].lower())
 
         else: 
  
