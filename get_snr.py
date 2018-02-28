@@ -1,6 +1,12 @@
 import numpy as np
 
 def get_snr(spec, wmin, wmax, has_continuum=False):
+    '''
+    To calculate the SNR within [wmin, wmax] range per pix
+
+    wmin: the minimum wavelength
+    wmax: the maximum wavelength 
+    '''
     flux = spec['FLUX']
     wave = spec['WAVE']
     error = spec['ERROR']
