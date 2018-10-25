@@ -68,3 +68,65 @@ def cal_N_Vcent(ql, qb, qname, ionline, vmin=-100, vmax=100):
     b_dp_err = np.nan
 
     return colN, colNerr, vc, vcerr, b_dp, b_dp_err
+
+#===============================================================================
+# The following can be deleted later once finish testing the HLSP product.
+def read_ionline_testhlsp(ql, qb, qname, ionline):
+    import os 
+    specdir = '/Users/Yong/Dropbox/HSLA_Feb16/QSOSpec_YZ/hlsp_qsoals/'
+    tardir = '%s/%s/linedata_uv/'%(specdir, qname.lower())
+    files = os.listdir(tardir)
+    ifile = ''
+    for ifile in files:
+        if ionline.lower() in ifile.replace('-', ''): 
+            break
+
+    if len(ifile) == 0:
+        print('Can\'t find the file. '+qname)
+        import sys
+        sys.exit(1)
+
+    ionfile = '%s/%s'%(tardir, ifile)
+
+    spec = fits.open(ionfile)
+    flux = spec[1].data['NORMFLUX']
+    err = spec[1].data['NORMERR']
+
+    from quicktools.vhelio2vlsr import vhelio2vlsr_Westmeier
+    vcorr = vhelio2vlsr_Westmeier(0, ql, qb, doradec=False)
+    vlsr = spec[1].data['VELOCITY']+vcorr
+
+    return vlsr, flux, err
+
+
+def cal_N_Vcent_testhlsp(ql, qb, qname, ionline, vmin=-100, vmax=100):
+
+    vlsr, flux, err = read_ionline_testhlsp(ql, qb, qname, ionline)
+    nv, nverr = nv_aodm(flux, err, ionline)
+  
+    # ok, this one is completely ok, no need to adjust for low or high velocity. 01/05/2018
+    delv = np.fabs(np.mean(vlsr[1:] - vlsr[:-1]))
+
+    ind = np.all([vlsr>=vmin, vlsr<=vmax], axis=0)
+    finite = np.all([np.isfinite(nv), np.isfinite(nverr)], axis=0)
+    vlsr = vlsr[np.all([ind, finite], axis=0)]
+    nv = nv[np.all([ind, finite], axis=0)]
+    nverr = nverr[np.all([ind, finite], axis=0)]
+
+    colN = (nv*delv).sum()                   # checked
+    colNerr = np.sqrt(np.sum((nverr*delv)**2))   # checked
+    # lgN = np.log10(colN)
+    # lgNerr = np.fabs(colNerr/colN/np.log(10))
+   
+    # centroid velocity                            # checked 
+    vc = (vlsr*nv*delv).sum()/colN
+    pA = (vlsr*nv*delv).sum()
+    sigpA = np.sqrt(np.sum((vlsr*nverr*delv)**2))
+    vcerr = np.fabs(vc)*np.sqrt((sigpA/pA)**2 + (colNerr/colN)**2)
+
+    # second moment, Doppler width
+    b_dp = np.sqrt(((vlsr-vc)**2*nv*delv).sum()/colN)
+    b_dp_err = np.nan
+
+    return colN, colNerr, vc, vcerr, b_dp, b_dp_err
+
