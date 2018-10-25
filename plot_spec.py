@@ -17,42 +17,34 @@ def build_axes(line_number, pltrange=[-400, 400]):
     Setup the figure axes for the stack plotting. If line_number>10, use the bigger canvas.
     '''
 
-    # the maximum is 40 sub figures. 
+    # the maximum is 24 sub figures. 
     #if line_number > 11: 
-    axpos40 = np.asarray([[0.08, 0.8], [0.08, 0.7], [0.08, 0.6], [0.08, 0.5],
-                          [0.08, 0.4], [0.08, 0.3], [0.08, 0.2], [0.08, 0.1],
-                          [0.26, 0.8], [0.26, 0.7], [0.26, 0.6], [0.26, 0.5],
-                          [0.26, 0.4], [0.26, 0.3], [0.26, 0.2], [0.26, 0.1],
-                          [0.44, 0.8], [0.44, 0.7], [0.44, 0.6], [0.44, 0.5],
-                          [0.44, 0.4], [0.44, 0.3], [0.44, 0.2], [0.44, 0.1],
-                          [0.62, 0.8], [0.62, 0.7], [0.62, 0.6], [0.62, 0.5],
-                          [0.62, 0.4], [0.62, 0.3], [0.62, 0.2], [0.62, 0.1],
-                          [0.80, 0.8], [0.80, 0.7], [0.80, 0.6], [0.80, 0.5],
-                          [0.80, 0.4], [0.80, 0.3], [0.80, 0.2], [0.80, 0.1]])
+    axpos24 = np.asarray([[0.1, 0.8], [0.1, 0.7], [0.1, 0.6], [0.1, 0.5],
+                          [0.1, 0.4], [0.1, 0.3], [0.1, 0.2], [0.1, 0.1], # col1
+                          [0.4, 0.8], [0.4, 0.7], [0.4, 0.6], [0.4, 0.5],
+                          [0.4, 0.4], [0.4, 0.3], [0.4, 0.2], [0.4, 0.1], # col2
+                          [0.7, 0.8], [0.7, 0.7], [0.7, 0.6], [0.7, 0.5],
+                          [0.7, 0.4], [0.7, 0.3], [0.7, 0.2], [0.7, 0.1]]) # col3
     do_xlabel=[0, 0, 0, 0, 0, 0, 0, 1,
-               0, 0, 0, 0, 0, 0, 0, 1,
-               0, 0, 0, 0, 0, 0, 0, 1,
                0, 0, 0, 0, 0, 0, 0, 1,
                0, 0, 0, 0, 0, 0, 0, 1]
     do_ylabel=[1, 1, 1, 1, 1, 1, 1, 1,
                0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0]
     
-    if line_number > axpos40.size:
-        logger.info("Too many lines. Only plot the first 40.")
-        pltax = axpos40
+    if line_number > axpos24.size:
+        logger.info("Too many lines. Only plot the first 24.")
+        pltax = axpos24
         do_xlabel = do_xlabel
         do_ylabel = do_ylabel
     else:
-        pltax = axpos40[0:line_number]
+        pltax = axpos24[0:line_number]
         do_xlabel = do_xlabel[0:line_number]
         do_xlabel[-1] = 1
         do_ylabel = do_ylabel[0:line_number]
     
-    fig = plt.figure(figsize=(10, 8))
-    axwd, axht = 0.17, 0.09
+    fig = plt.figure(figsize=(6, 8))
+    axwd, axht = 0.25, 0.09
     #else:   # for only a small set of lines
     #    axpos11 = np.asarray([[0.2, 0.780], [0.2, 0.705], [0.2, 0.630], 
     #                          [0.2, 0.555], [0.2, 0.480], [0.2, 0.405],
@@ -122,14 +114,14 @@ def plot_uvline(ax, uvfile, target_info, vmin, vmax, vline=0):
         ax.vlines(vline, 0., 1.8, linestyle='--', lw=0.5)
         ax.set_xlim(vmin, vmax)
         ax.set_ylim(0, 1.8)
-        ax.text(vmin+0.05*np.fabs(vmax-vmin), 1.3, '%s        f%.4f'%(iontb[0].header['LINE'],
-                                                                      iontb[0].header['FVAL']),
-                                                                      color=c_red, fontsize=10)
+        ax.text(vmin+0.05*np.fabs(vmax-vmin), 1.3, '%s      f=%.4f'%(iontb[0].header['LINE'],
+                                                                     iontb[0].header['FVAL']),
+                                                                     color=c_red, fontsize=9)
     iontb.close() 
     return 'UV line is good'
    
 def stack_allline(target_info, filedir, pltrange=[-400, 400], vline=0, 
-                  savedir='./', plt_HI=False):
+                  savedir='./', plt_HI=False, simbad_info):
     '''
     Find all the available sliced lines in filedir, and stack them together. 
     Deal with HI21cm lines separately.
