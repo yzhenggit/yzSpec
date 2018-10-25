@@ -18,54 +18,54 @@ def build_axes(line_number, pltrange=[-400, 400]):
     '''
 
     # the maximum is 40 sub figures. 
-    if line_number > 11: 
-        axpos40 = np.asarray([[0.08, 0.8], [0.08, 0.7], [0.08, 0.6], [0.08, 0.5],
-                              [0.08, 0.4], [0.08, 0.3], [0.08, 0.2], [0.08, 0.1],
-                              [0.26, 0.8], [0.26, 0.7], [0.26, 0.6], [0.26, 0.5],
-                              [0.26, 0.4], [0.26, 0.3], [0.26, 0.2], [0.26, 0.1],
-                              [0.44, 0.8], [0.44, 0.7], [0.44, 0.6], [0.44, 0.5],
-                              [0.44, 0.4], [0.44, 0.3], [0.44, 0.2], [0.44, 0.1],
-                              [0.62, 0.8], [0.62, 0.7], [0.62, 0.6], [0.62, 0.5],
-                              [0.62, 0.4], [0.62, 0.3], [0.62, 0.2], [0.62, 0.1],
-                              [0.80, 0.8], [0.80, 0.7], [0.80, 0.6], [0.80, 0.5],
-                              [0.80, 0.4], [0.80, 0.3], [0.80, 0.2], [0.80, 0.1]])
-        do_xlabel=[0, 0, 0, 0, 0, 0, 0, 1,
-                   0, 0, 0, 0, 0, 0, 0, 1,
-                   0, 0, 0, 0, 0, 0, 0, 1,
-                   0, 0, 0, 0, 0, 0, 0, 1,
-                   0, 0, 0, 0, 0, 0, 0, 1]
-        do_ylabel=[1, 1, 1, 1, 1, 1, 1, 1,
-                   0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0, 0, 0, 0, 0, 0, 0]
+    #if line_number > 11: 
+    axpos40 = np.asarray([[0.08, 0.8], [0.08, 0.7], [0.08, 0.6], [0.08, 0.5],
+                          [0.08, 0.4], [0.08, 0.3], [0.08, 0.2], [0.08, 0.1],
+                          [0.26, 0.8], [0.26, 0.7], [0.26, 0.6], [0.26, 0.5],
+                          [0.26, 0.4], [0.26, 0.3], [0.26, 0.2], [0.26, 0.1],
+                          [0.44, 0.8], [0.44, 0.7], [0.44, 0.6], [0.44, 0.5],
+                          [0.44, 0.4], [0.44, 0.3], [0.44, 0.2], [0.44, 0.1],
+                          [0.62, 0.8], [0.62, 0.7], [0.62, 0.6], [0.62, 0.5],
+                          [0.62, 0.4], [0.62, 0.3], [0.62, 0.2], [0.62, 0.1],
+                          [0.80, 0.8], [0.80, 0.7], [0.80, 0.6], [0.80, 0.5],
+                          [0.80, 0.4], [0.80, 0.3], [0.80, 0.2], [0.80, 0.1]])
+    do_xlabel=[0, 0, 0, 0, 0, 0, 0, 1,
+               0, 0, 0, 0, 0, 0, 0, 1,
+               0, 0, 0, 0, 0, 0, 0, 1,
+               0, 0, 0, 0, 0, 0, 0, 1,
+               0, 0, 0, 0, 0, 0, 0, 1]
+    do_ylabel=[1, 1, 1, 1, 1, 1, 1, 1,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0]
     
-        if line_number > axpos40.size:
-            logger.info("Too many lines. Only plot the first 40.")
-            pltax = axpos40
-            do_xlabel = do_xlabel
-            do_ylabel = do_ylabel
-        else:
-            pltax = axpos40[0:line_number]
-            do_xlabel = do_xlabel[0:line_number]
-            do_xlabel[-1] = 1
-            do_ylabel = do_ylabel[0:line_number]
-        
-        fig = plt.figure(figsize=(10, 8))
-        axwd, axht = 0.17, 0.09
-    else:   # for only a small set of lines
-        axpos11 = np.asarray([[0.2, 0.780], [0.2, 0.705], [0.2, 0.630], 
-                              [0.2, 0.555], [0.2, 0.480], [0.2, 0.405],
-                              [0.2, 0.330], [0.2, 0.255], [0.2, 0.180], 
-                              [0.2, 0.105], [0.2, 0.030]])
-        do_xlabel = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
-        do_ylabel = [1]*11
-        fig = plt.figure(figsize=(2.5, 9))
-        axwd, axht = 0.72, 0.07
-        pltax = axpos11[0:line_number]
+    if line_number > axpos40.size:
+        logger.info("Too many lines. Only plot the first 40.")
+        pltax = axpos40
+        do_xlabel = do_xlabel
+        do_ylabel = do_ylabel
+    else:
+        pltax = axpos40[0:line_number]
         do_xlabel = do_xlabel[0:line_number]
         do_xlabel[-1] = 1
         do_ylabel = do_ylabel[0:line_number]
+    
+    fig = plt.figure(figsize=(10, 8))
+    axwd, axht = 0.17, 0.09
+    #else:   # for only a small set of lines
+    #    axpos11 = np.asarray([[0.2, 0.780], [0.2, 0.705], [0.2, 0.630], 
+    #                          [0.2, 0.555], [0.2, 0.480], [0.2, 0.405],
+    #                          [0.2, 0.330], [0.2, 0.255], [0.2, 0.180], 
+    #                          [0.2, 0.105], [0.2, 0.030]])
+    #    do_xlabel = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+    #    do_ylabel = [1]*11
+    #    fig = plt.figure(figsize=(2.5, 9))
+    #    axwd, axht = 0.72, 0.07
+    #    pltax = axpos11[0:line_number]
+    #    do_xlabel = do_xlabel[0:line_number]
+    #    do_xlabel[-1] = 1
+    #    do_ylabel = do_ylabel[0:line_number]
 
     axes = []
     for i in range(len(pltax)):
@@ -83,19 +83,20 @@ def build_axes(line_number, pltrange=[-400, 400]):
 
     return axes, fig
 
-def plot_HI21cm(ax, hifile, vmin, vmax):
+def plot_HI21cm(ax, hifile, vmin, vmax, vline):
     hitb = fits.open(hifile)
     hivel, hispec = hitb[1].data.field('VLSR'), hitb[1].data.field('FLUX')
     ind = np.where(np.all([hivel>=vmin, hivel<=vmax], axis=0) == True)
     xx, yy = np.repeat(hivel[ind], 2)[1:], np.repeat(hispec[ind], 2)[:-1]
     ax.plot(xx, yy, color=c_blk, lw=0.8)
     tmax, tmin = np.nanmax(hispec[ind]), np.nanmin(hispec[ind])
-    ax.hlines(0, vmin, vmax, linestyle=':')
-    ax.vlines(vline, tmin, tmax*1.4, linestyle='--')
+    ax.hlines(0, vmin, vmax, linestyle=':', lw=0.5)
+    ax.vlines(vline, tmin, tmax*1.4, linestyle='--', lw=0.5)
     ax.set_xlim(vmin, vmax)
     ax.set_ylim(tmin, tmax*1.4)
     ax.text(vmin+0.05*np.fabs(vmax-vmin), tmax, 'HI-21cm', color=c_red)
     ax.set_ylabel('Tb (K)')
+    ax.set_title('HI4PI averaged within 1deg beam', fontsize=8)
     hitb.close()
     return 'HI is good'
 
@@ -117,8 +118,8 @@ def plot_uvline(ax, uvfile, target_info, vmin, vmax, vline=0):
         x, y, z = ivel[ind], iflux[ind], isig[ind]
         ax.plot(x, y, color=c_blk, lw=0.8)
         ax.plot(x, z, color=c_blue, lw=0.8)
-        ax.hlines(1., vmin, vmax, linestyle=':')
-        ax.vlines(vline, 0., 1.8, linestyle='--')
+        ax.hlines(1., vmin, vmax, linestyle=':', lw=0.5)
+        ax.vlines(vline, 0., 1.8, linestyle='--', lw=0.5)
         ax.set_xlim(vmin, vmax)
         ax.set_ylim(0, 1.8)
         ax.text(vmin+0.05*np.fabs(vmax-vmin), 1.3, '%s        f%.4f'%(iontb[0].header['LINE'],
@@ -134,12 +135,14 @@ def stack_allline(target_info, filedir, pltrange=[-400, 400], vline=0,
     Deal with HI21cm lines separately.
     '''
   
-    # first check the directory to find the HI and UV lines  
-    hifiles = []
+    # first check the directory to find the HI and UV lines 
+    hifile = False
     for jfile in os.listdir(filedir+'/linedata_21cm'):
-        if jfile.split('_')[0] == 'hlsp':
-            hifiles.append(filedi+'/linedata_21cm/'+jfile)
-
+        file_compos = jfile.replace('_', '-').split('-')
+        if 'hi4pi' in file_compos and 'beam1.000deg.fits.gz' in file_compos:
+            hifile = filedir+'/linedata_21cm/'+jfile
+            break
+ 
     uvfiles = []
     for ifile in os.listdir(filedir+'/linedata_uv'):
         if ifile.split('_')[0] == 'hlsp':
@@ -152,10 +155,11 @@ def stack_allline(target_info, filedir, pltrange=[-400, 400], vline=0,
     vmin, vmax = pltrange[0], pltrange[1]
    
     ## axes[0] is always for HI21cm, no matter whether there is data or not
-    if plt_HI == True:
+    if plt_HI == True and type(hifile) != bool:
         print('Plottig HI 21cm lines')
-        this_hifile = filedir+'/'+hifiles[0] # this line might need to be changed 
-        plot_HI21cm(axes[0], this_hifile, vmin, vmax)
+        ## mainly use HI4PI at 1 degree beam for this spectra, 
+        ## so that people have comparison with Karbella's online HI profile provider. 
+        plot_HI21cm(axes[0], hifile, vmin, vmax, vline)
     else:
         axes[0].set_xlim(vmin, vmax)
         axes[0].set_ylim(-1, 1)
