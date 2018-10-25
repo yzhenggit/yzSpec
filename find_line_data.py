@@ -9,7 +9,7 @@ def import_lines():
 
     defaultlines = ['PII 1152', 'FeII 1142', 'FeII 1143', 'FeII 1144', 'FeII 1608',
                     'CII 1334', 'CIV 1548', 'CIV 1550',
-                    'SiII 1304', 'SiII 1190', 'SiII 1193', 'SiII 1260', 'SiII 1526',
+                    'SiII 1190', 'SiII 1193', 'SiII 1260', 'SiII 1304', 'SiII 1526',
                     'SiIII 1206', 'SiIV 1393', 'SiIV 1402',
                     'SII 1250', 'SII 1253', 'SII 1259', 'NV 1238', 'NV 1242']
     return defaultlines
