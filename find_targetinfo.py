@@ -48,7 +48,11 @@ def find_targetinfo(target):
         else: 
             if g160m == 1: gtag = 'G160M'
             else: gtag = 'none'
-        
+
+        # 101518, Yong, add this following line for only those 7 targets that HSLA store G130M/G160M wrong
+        # 2XMM-J141348.3+440014/ H1821+643/ MRK304/ PG1126-041/ PG1435-067/ QSO-B1124+271/ SDSSJ085259.22+031320.6
+        # gtag = 'G160M'
+       
         datadir = homedir+'/Dropbox/HSLA_Feb16/datapile/'+category
         filename = '%s/%s/%s_coadd_%s_final_all.fits.gz'%(datadir, target, target, gtag) 
         if os.path.isfile(filename) == False: filename='none'
