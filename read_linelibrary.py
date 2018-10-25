@@ -2,26 +2,11 @@ import astropy.io.fits as fits
 import sys, re
 import numpy as np
 
+from yzSpec.find_line_data import import_lines
+
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-def import_lines():
-    '''
-    Load the interested lines.
-    '''
-
-    defaultlines = ['PII 1152', 'PII 1301',  
-                    'FeII 1142', 'FeII 1143', 'FeII 1144', 'FeII 1608',
-                    'CII 1334', 'CII* 1335', 'CIV 1548', 'CIV 1550', 
-                    'SiII 1304', 'SiII 1190', 'SiII 1193', 'SiII 1260', 'SiII 1526', 
-                    'SiII* 1533', 'SiII* 1264', 'SiIII 1206', 'SiIV 1393', 'SiIV 1402', 
-                    'SII 1250', 'SII 1253', 'SII 1259', 'OI 1302', 'NV 1238', 'NV 1242']
-                    #'SI 1296', 'SI 1316', 'SI 1425', 'SI 1295',
-                    #'HI 1215', 'PII 1532','SiI 1595', 'SiI 1589',
-		    #'SiII* 1309', 'SiII* 1197'
-
-    return defaultlines
 
 def read_linelibrary(lines='All', doprint=True):
     '''
@@ -29,6 +14,7 @@ def read_linelibrary(lines='All', doprint=True):
     '''
 
     # find the path, read in the line library 
+    # xidl line library is really outdated I think, don't use this one. 
     import sys
     for ipath in sys.path:
         if 'GitRepo' in ipath:
@@ -70,6 +56,6 @@ def read_linelibrary(lines='All', doprint=True):
                 break
 
     if doprint == True: logger.info("Found these in our library: ",liblines)
-    line_ref = 'Morton (2003)'
+    line_ref = 'Morton (2003)'  
     return liblines, line_lambda, line_fval, line_ref
 
