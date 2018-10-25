@@ -1,6 +1,6 @@
 import numpy as np
 
-def get_snr(spec, wmin, wmax, has_continuum=False):
+def get_snr(spec, wmin, wmax, has_continuum=False, segment='G130M', per_res_ele=False):
     '''
     To calculate the SNR within [wmin, wmax] range per pix
 
@@ -23,13 +23,20 @@ def get_snr(spec, wmin, wmax, has_continuum=False):
     else: 
         snr_pix_cont = np.nan
 
-    return snr_pix_flux, snr_pix_cont
-
+    # SNR per resolution element
+    if per_res_ele == True:
+        npix_dict = {'G130M': 6, 'G160M':10}
+        npix = npix_dict[segment]
+        snr_res_flux = snr_pix_flux*np.sqrt(npix)
+        snr_res_cont = snr_pix_cont*np.sqrt(npix)
+        return snr_res_flux, snr_res_cont
+    else: 
+        return snr_pix_flux, snr_pix_cont
 
 def get_siglevel(vel, flux, seg='G130M', per_res_ele=False):
     '''
     To calculate the SNR for the sliced lines of HSLA
-    
+    YZ noted on 07/23/18: this way of calculating the SNR is wrong, see email on Jan 29.  
     per_res_ele: set to True if want to compute SNR per resolution element
     '''
     
