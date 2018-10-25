@@ -86,9 +86,8 @@ def plot_HI21cm(ax, hifile, vmin, vmax, vline):
     ax.vlines(vline, tmin, tmax*1.4, linestyle='--', lw=0.5)
     ax.set_xlim(vmin, vmax)
     ax.set_ylim(tmin, tmax*1.4)
-    ax.text(vmin+0.05*np.fabs(vmax-vmin), tmax, 'HI-21cm', color=c_red)
+    ax.text(vmin+0.05*np.fabs(vmax-vmin), tmax, 'HI 21cm', color=c_red)
     ax.set_ylabel('Tb (K)')
-    ax.set_title('HI4PI averaged within 1deg beam', fontsize=8)
     hitb.close()
     return 'HI is good'
 
@@ -121,10 +120,11 @@ def plot_uvline(ax, uvfile, target_info, vmin, vmax, vline=0):
     return 'UV line is good'
    
 def stack_allline(target_info, filedir, pltrange=[-400, 400], vline=0, 
-                  savedir='./', plt_HI=False, simbad_info):
+                  savedir='./', plt_HI=False, simbad_info={}):
     '''
     Find all the available sliced lines in filedir, and stack them together. 
     Deal with HI21cm lines separately.
+    simbad_info: the new table has more accurate information from Simbad, use those
     '''
   
     # first check the directory to find the HI and UV lines 
@@ -148,7 +148,7 @@ def stack_allline(target_info, filedir, pltrange=[-400, 400], vline=0,
    
     ## axes[0] is always for HI21cm, no matter whether there is data or not
     if plt_HI == True and type(hifile) != bool:
-        print('Plottig HI 21cm lines')
+        # print('Plottig HI 21cm lines')
         ## mainly use HI4PI at 1 degree beam for this spectra, 
         ## so that people have comparison with Karbella's online HI profile provider. 
         plot_HI21cm(axes[0], hifile, vmin, vmax, vline)
@@ -161,12 +161,15 @@ def stack_allline(target_info, filedir, pltrange=[-400, 400], vline=0,
         plot_uvline(axes[iuv+1], ifile, target_info, vmin, vmax, vline=vline)
 
     ## now overall layout
-    fig.text(0.05, 0.96, '%s'%(target_info['NAME']), fontsize=12, horizontalalignment='left')
-    fig.text(0.05, 0.94, '(RA%.2f, DEC%.2f, gl%.2f, gb%.2f)'%(target_info['RA'], target_info['DEC'],
-                                                              target_info['l'], target_info['b']),
-                                                              fontsize=8)
-    fig.text(0.05, 0.92, '(SN%d, z%.3f)'%(target_info['S/N'], target_info['z']), fontsize=8)
-    fig.text(0.1, 0.05, 'VLSR (km/s)  (NOTE: vel in helio in fits file)')
+    fig.text(0.05, 0.96, '%s (HSLA-V1)'%(target_info['NAME']), fontsize=12, horizontalalignment='left')
+    fig.text(0.05, 0.94, 'Simbad ID: %s'%(simbad_info['simbad_ID']), fontsize=8)
+    fig.text(0.05, 0.92, 'RA=%.4f, DEC=%.4f, glon=%.4f, glat=%.4f'%(simbad_info['RA'], simbad_info['DEC'],
+                                                                      simbad_info['glon'], simbad_info['glat']),
+                                                                      fontsize=8)
+    fig.text(0.05, 0.90, 'Mean SN per res=%d, z=%.4f; HI 21cm from HI4PI, averaged over 1 deg beam'%(target_info['S/N'], 
+               simbad_info['z']), fontsize=8)
+    fig.text(0.13, 0.05, 'VLSR (km/s)')
+    fig.text(0.1, 0.02, '(Note: velocity in helio frame in fits file)', fontsize=8)
     
     if target_info['Grating'] == 'FUVM': grating = 'g130m-g160m'
     else: grating = target_info['Grating']
@@ -352,7 +355,7 @@ def plot_OneLine(target_info, linefile, pltrange=[-400, 400], filedir='.', velwi
     ax3.set_xticks(np.mgrid[minr:maxr:200][1:])
     ax3.set_yticks(np.mgrid[0:2.:0.5])
     ax3.minorticks_on()
-    ax3.set_xlabel('VLSR (km/s)  (Note: vel in helio in fits file)')
+    ax3.set_xlabel(r'VLSR (km/s)   (Note: vel in helio in fits file)')
     ax3.set_ylabel('Norm. Flux')
 
     figname = '%s/%s.pdf'%(filedir, linefile.split('/')[-1][:-8])
