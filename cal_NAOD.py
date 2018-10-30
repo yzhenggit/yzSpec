@@ -10,7 +10,7 @@ def read_ionline(ql, qb, qname, ionline):
     flux = spec[1].data['NORMFLUX']
     err = spec[1].data['NORMERR']
     
-    from quicktools.vhelio2vlsr import vhelio2vlsr_Westmeier
+    from yztools.vhelio2vlsr import vhelio2vlsr_Westmeier
     vcorr = vhelio2vlsr_Westmeier(0, ql, qb, doradec=False)
     vlsr = spec[1].data['VELOCITY']+vcorr
     
@@ -92,7 +92,7 @@ def read_ionline_testhlsp(ql, qb, qname, ionline):
     flux = spec[1].data['NORMFLUX']
     err = spec[1].data['NORMERR']
 
-    from quicktools.vhelio2vlsr import vhelio2vlsr_Westmeier
+    from yztools.vhelio2vlsr import vhelio2vlsr_Westmeier
     vcorr = vhelio2vlsr_Westmeier(0, ql, qb, doradec=False)
     vlsr = spec[1].data['VELOCITY']+vcorr
 
