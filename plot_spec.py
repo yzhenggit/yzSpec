@@ -103,7 +103,7 @@ def plot_HI21cm(ax, hifile, vmin, vmax, vline):
 def plot_uvline(ax, uvfile, target_info, vmin, vmax, vline=0):
 
     iontb = fits.open(uvfile)
-    from quicktools.vhelio2vlsr import vhelio2vlsr_Westmeier
+    from yztools.vhelio2vlsr import vhelio2vlsr_Westmeier
     vhel2vlsr = vhelio2vlsr_Westmeier(0, target_info['l'], target_info['b'], doradec=False)
     ivel = iontb[1].data.field('VELOCITY')+vhel2vlsr
     iflux = iontb[1].data.field('NORMFLUX')
@@ -251,7 +251,7 @@ def stack_spec(target_info, filedir, lines='All', pltrange=[-400, 400],
         if 'HI21cm' in ifile: continue
         nion = nion+1
         iontb = fits.open('%s/%s'%(filedir, ifile))
-        from quicktools.vhelio2vlsr import vhelio2vlsr_Westmeier
+        from yztools.vhelio2vlsr import vhelio2vlsr_Westmeier
         vhel2vlsr = vhelio2vlsr_Westmeier(0, target_info['l'], target_info['b'], doradec=False)
         ivel = iontb[1].data.field('VELOCITY')+vhel2vlsr
         iflux = iontb[1].data.field('NORMFLUX')
@@ -314,7 +314,7 @@ def plot_OneLine(target_info, linefile, pltrange=[-400, 400], filedir='.', velwi
     vel = spechdu[1].data.field('VELOCITY')
     spechdu.close()
 
-    from quicktools.vhelio2vlsr import vhelio2vlsr_Westmeier
+    from yztools.vhelio2vlsr import vhelio2vlsr_Westmeier
     vhel2vlsr = vhelio2vlsr_Westmeier(0, target_info['l'], target_info['b'], doradec=False)
     vel = vel+vhel2vlsr
 
